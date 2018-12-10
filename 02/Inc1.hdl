@@ -1,0 +1,12 @@
+/* Single Bit incrementer! */
+
+CHIP Inc1 {
+    IN in, c;
+    OUT out, carry;
+
+    PARTS:
+    Not(in=in,out=notin);
+    Mux(a=notin,b=in, sel=c,out=out);
+    Or(a=notin, b=c,out=carry);
+    
+}

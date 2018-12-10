@@ -1,0 +1,10 @@
+CHIP Msb16 {
+    IN in[16];
+    OUT out;
+
+    PARTS:
+    And(a=in[15],b=true, out=out); // just to get the most significant digit
+    // which I'm apparently not allowed due to silly restrictions here!
+    
+}
+
