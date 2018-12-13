@@ -130,6 +130,7 @@ class Assembler(object):
 		# argh!
 		# should have just done it then!
 		#ido'tkowwhattheprolemis withthis... but ugh!
+		self.num_symbols = 16 # starts at 16 by the spec
 
 	def write_to_output_file(self,oname, outputs):
 		print(outputs)
@@ -137,6 +138,18 @@ class Assembler(object):
 			for output in outputs:
 				f.write(str(output) + "\n")
 		return
+
+	def first_pass(self, lines):
+		for line in lines:
+			line = line.strip()
+			if len(line) > 0:
+				if line[0] == "(":
+					line[1:-1] = sym
+					print("Adding label " + sym)
+					self.sdict[sym] = pc +1 # add the new address to the book
+
+			pc += 1
+
 
 	def assemble(self): # start off with a monster method
 		outputs = []
@@ -147,6 +160,7 @@ class Assembler(object):
 			for line in lines:
 				out = ""
 				line = line.strip()
+				print(line)
 				if len(line) > 0:
 					if line[0] == "/":
 						# a comment of some sort... ignore
@@ -159,16 +173,36 @@ class Assembler(object):
 						# then an A command!!
 						print("A command " + str(line))
 						out += "0"
+
 						val = line[1:]
-						out += binary_repr(int(val),width=15)
-						outputs.append(out) # that is very simple!
+						# check if val is a known symbol or a number
+						try:
+							val = int(val)
+							out += binary_repr(int(val),width=15)
+							outputs.append(out) # that is very simple!
+						except ValueError:
+							# val is a string,which means symbol
+							print(val)
+							if val in self.sdict.keys():
+								v = int(self.sdict[val])
+							else:
+								v = self.num_symbols + 1
+								self.num_symbols +=1
+							out += binary_repr(int(v),width=15)
+							outputs.append(out)
+
 					elif line[0] == "(":
 						# means a label is detected... pass for now
 						pass
 
 					elif line[0] in self.ddict.keys() or line[0:1] in self.ddict.keys() or line[0:2] == "AMD":
 						# then definitely a c command... so treat it as such!
-						dest, cmd = line.split("=") #assume there is awlays a command!
+						"""
+						try:
+							dest, cmd = line.split("=") #assume there is awlays a command!
+						except:
+							print("No command line: " + str(line))
+							pass # not sure what to do on an empty line like that!
 						cmds = cmd.split(";")
 						if len(cmds) == 2:
 							comp, jump = cmds
@@ -177,6 +211,21 @@ class Assembler(object):
 							comp = cmds[0]
 							jmp = "null"
 						out += "111"
+						"""
+						out += "111"
+						if "=" in line and ";" in line:
+							dest, cmd = line.split("=")
+							comp,jmp = cmd.split(";")
+						if "=" in line and ";" not in line:
+							dest, comp = line.split("=")
+							jmp="null"
+						if ";" in line and "=" not in line:
+							dest = "null"
+							comp, jmp = line.split(";")
+
+						print(dest, comp, jmp)
+
+
 						# check whether a bit should be set or not!
 						if comp in self.acdict.keys():
 							out+="1"
