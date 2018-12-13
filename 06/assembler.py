@@ -188,6 +188,7 @@ class Assembler(object):
 							else:
 								v = self.num_symbols + 1
 								self.num_symbols +=1
+								self.sdict[val] = v
 							out += binary_repr(int(v),width=15)
 							outputs.append(out)
 
@@ -195,33 +196,28 @@ class Assembler(object):
 						# means a label is detected... pass for now
 						pass
 
-					elif line[0] in self.ddict.keys() or line[0:1] in self.ddict.keys() or line[0:2] == "AMD":
+					elif line[0] in self.ddict.keys() or line[0:1] in self.ddict.keys() or line[0:2] == "AMD" or line[0] in self.cdict.keys() or line[0:1] in self.cdict.keys() or line[0:2] in self.cdict.keys():
 						# then definitely a c command... so treat it as such!
-						"""
-						try:
-							dest, cmd = line.split("=") #assume there is awlays a command!
-						except:
-							print("No command line: " + str(line))
-							pass # not sure what to do on an empty line like that!
-						cmds = cmd.split(";")
-						if len(cmds) == 2:
-							comp, jump = cmds
-						else:
-							print(cmds)
-							comp = cmds[0]
-							jmp = "null"
 						out += "111"
-						"""
-						out += "111"
+						# first strip out any immediate issues by shrinking line down to size
+						if len(line) > 10:
+							line = line[0:10]
 						if "=" in line and ";" in line:
 							dest, cmd = line.split("=")
+							dest = dest.strip()
 							comp,jmp = cmd.split(";")
+							comp = comp.strip()
+							jmp = jmp.strip()
 						if "=" in line and ";" not in line:
 							dest, comp = line.split("=")
 							jmp="null"
+							dest = dest.strip()
+							comp = comp.strip()
 						if ";" in line and "=" not in line:
 							dest = "null"
 							comp, jmp = line.split(";")
+							comp = comp.strip()
+							jmp = jmp.strip()
 
 						print(dest, comp, jmp)
 
@@ -260,3 +256,4 @@ if __name__ == '__main__':
 	oname = sys.argv[2]
 	a = Assembler(fname, oname)
 	a.assemble()
+	print(a.sdict)
