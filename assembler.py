@@ -196,7 +196,7 @@ class Assembler(object):
 						# means a label is detected... pass for now
 						pass
 
-					elif line[0] in self.ddict.keys() or line[0:1] in self.ddict.keys() or line[0:2] == "AMD":
+					elif line[0] in self.ddict.keys() or line[0:1] in self.ddict.keys() or line[0:2] == "AMD" or line[0] in self.cdict.keys() or line[0:1] in self.cdict.keys() or line[0:2] in self.cdict.keys():
 						# then definitely a c command... so treat it as such!
 						out += "111"
 						# first strip out any immediate issues by shrinking line down to size
