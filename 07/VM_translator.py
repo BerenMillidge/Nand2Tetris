@@ -7,7 +7,6 @@ def pop(mem, val):
 	s = ""
 	s += "// pop " + mem + " " + val + "\n"
 	s += "@" + mem + "\n"
-	s += "A=M\n"
 	s += "D=M\n"
 	s += "@" + val + "\n"
 	s += "D=D+M\n"
@@ -22,6 +21,7 @@ def pop(mem, val):
 	s += "@SP\n"
 	s ++ "M=M-1\n"
 	return s
+	# it's actually quite elegnat!
 
 def push(mem, val):
 	s = ""
@@ -180,5 +180,53 @@ def less_than(lt_label):
 	s += "A=A-1\n"
 	s += "M=D\n"
 	return s
+
+def init_memory_dict():
+	mems = {}
+	mems["local"] = "LCL"
+	# fill in the rest once you'ev gone through that lecture
+	return mems
+
+def init_command_dict():
+	cd  = {}
+	# fill this in
+	return cd
+
+
+def translate(infname):
+	# just a simple function because once this is achieved the translatino is prtty simple!
+	outs = []
+	memdict = init_memory_dict()
+	commanddict = init_command_dict()
+	with open(infname, 'r+') as f:
+		lines = f.readlines()
+		for line in lines:
+			line = line.strip()
+			splits = line.split(" ")
+			if len(splits) == 3:
+				if splits[0] == "push":
+					cmds = push(memdict[splits[1]], splits[2])
+					outs.append(cmds)
+				if slpits[0] == "pop":
+					cmds = pop(memdict[splits[1]], splits[2])
+					outs.append(cmds)
+				else:
+					raise ValueError("Tri-valued command: " + str(line) + " not recognised...")
+			if len(splits) == 1:
+				if splits[0] in commanddict.keys():
+					cmd = commanddict[splits[0]]()
+					outs.append(cmd)
+				else:
+					raise ValueError("Single valued command not found: " + str(line))
+
+	return outs
+
+def write_output(outputs, ofname):
+	with open(ofname, 'w+') as f:
+		for line in outputs:
+			f.write(line)
+
+
+
 
 # so these are all the assembly commands I'm going to need... which is nice!.. it's quite a lot , but still doable!
